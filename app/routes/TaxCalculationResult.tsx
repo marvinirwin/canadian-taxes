@@ -5,9 +5,10 @@ export type TaxCalculationResult = {
   federalTaxCredit: number;
   provincialTaxCredit: number;
   netDividend: number;
-};export function calculateDividendTax(
+};
+export function calculateDividendTax(
   income: number,
-  province: string
+  province: string,
 ): TaxCalculationResult {
   // Federal rates for eligible dividends
   const federalGrossUpRate = 0.38;
@@ -17,9 +18,9 @@ export type TaxCalculationResult = {
   const provincialGrossUpRate = province === "British Columbia" ? 0.12 : 0; // Update for other provinces as needed
   const provincialTaxCreditRate = province === "British Columbia" ? 0.12 : 0; // Update for other provinces as needed
 
-
   // Calculate the grossed-up dividend
-  const grossedUpDividend = income * (1 + federalGrossUpRate + provincialGrossUpRate);
+  const grossedUpDividend =
+    income * (1 + federalGrossUpRate + provincialGrossUpRate);
 
   // Calculate the federal and provincial tax credits
   const federalTaxCredit = grossedUpDividend * federalTaxCreditRate;
@@ -46,7 +47,7 @@ export const federalTaxBrackets: TaxBracket[] = [
   { upperLimit: 235675, rate: 0.29 },
   { upperLimit: Infinity, rate: 0.33 },
 ];
-export const provincialTaxBrackets: { [province: string]: TaxBracket[]; } = {
+export const provincialTaxBrackets: { [province: string]: TaxBracket[] } = {
   "British Columbia": [
     { upperLimit: 45654, rate: 0.0506 },
     { upperLimit: 91310, rate: 0.077 },
@@ -67,7 +68,10 @@ export interface TaxRateResult {
   federalTaxRate: number;
   provincialTaxRate: number;
 }
-export function calculateCombinedMarginalTaxRate(income: number, province: string): TaxRateResult {
+export function calculateCombinedMarginalTaxRate(
+  income: number,
+  province: string,
+): TaxRateResult {
   let remainingIncome = income;
   let federalTax = 0;
   let provincialTax = 0;
@@ -75,22 +79,21 @@ export function calculateCombinedMarginalTaxRate(income: number, province: strin
   for (let i = 0; i < federalTaxBrackets.length; i++) {
     const bracket = federalTaxBrackets[i];
     if (remainingIncome > bracket.upperLimit) {
-      federalTax += (bracket.upperLimit * bracket.rate);
+      federalTax += bracket.upperLimit * bracket.rate;
       remainingIncome -= bracket.upperLimit;
     } else {
-      federalTax += (remainingIncome * bracket.rate);
+      federalTax += remainingIncome * bracket.rate;
       break;
     }
   }
 
-  remainingIncome = income;
   for (let i = 0; i < provincialTaxBrackets[province].length; i++) {
     const bracket = provincialTaxBrackets[province][i];
     if (remainingIncome > bracket.upperLimit) {
-      provincialTax += (bracket.upperLimit * bracket.rate);
+      provincialTax += bracket.upperLimit * bracket.rate;
       remainingIncome -= bracket.upperLimit;
     } else {
-      provincialTax += (remainingIncome * bracket.rate);
+      provincialTax += remainingIncome * bracket.rate;
       break;
     }
   }
@@ -109,17 +112,17 @@ export interface TaxComparisonResult {
   dividends: {
     taxed: { provincial: number; federal: number; percentage: number };
     takeHome: number;
-
   };
   wages: {
     cpp: number;
     ei: number;
     taxes: {
-      percentage: number; provincial: number; federal: number; 
-};
+      percentage: number;
+      provincial: number;
+      federal: number;
+    };
     takeHome: number;
     cppPercentage: number;
     eiPercentage: number;
   };
 }
-
